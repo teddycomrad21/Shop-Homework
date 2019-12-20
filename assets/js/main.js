@@ -1,42 +1,40 @@
-var defaultButtonText = 'Add to cart <i class="fas fa-shopping-cart" aria-hidden="true"></i>';
-var addToCartBtn = document.getElementsByClassName('item-actions__cart');
-var cartCounterIcon = document.getElementById('cart-counter');
-var itemPrice = document.getElementsByClassName('item-price');
-var cartCounter = 0;
-var cartValue = 0;
+const defaultButtonText = 'Add to cart <i class="fas fa-shopping-cart" aria-hidden="true"></i>';
+const cartCounterIcon = document.getElementById('cart-counter');
+const content = document.querySelector('.page-content');
+let cartCounter = 0;
+let cartValue = 0;
 
-function cartIncrement() {
-  cartCounterIcon.style.display = "block";
+const cartIncrement = () => {
+  cartCounterIcon.style.display = 'block';
   cartCounterIcon.innerHTML = ++cartCounter;
 } 
 
-for (var i = 0; i < addToCartBtn.length; i++) {
-  (function(i) {
-    addToCartBtn[i].onclick = function() {
-      var currentPrice = itemPrice[i].textContent;
-      var processedPrice = currentPrice.substr(1).replace(' ', '.');
-      cartValue += +processedPrice;
-      var currentCartValue = cartValue.toFixed(2);
+const addToCartLogic = (event) => {
+  const target = event.target;
 
-      addToCartBtn[i].innerHTML = `ADDED ${currentCartValue} $`;
-      disableButtons();
-      setTimeout(function() {
-        enableButtons();
-        addToCartBtn[i].innerHTML = defaultButtonText;
-      }, 2000);
-      cartIncrement();
-    }
-  })(i);
-}
+  if (target.classList.contains('item-actions__cart')) {
+    const parentContainer = target.closest('.container-fluid');
+    const currentPrice = parentContainer.querySelector('.item-price').textContent;
+    let processedPrice = currentPrice.substr(1).replace(' ', '.');
+    cartValue += +processedPrice;
+    const formatter = new Intl.NumberFormat('en-US', {
+      currency: 'USD',
+      minimumFractionDigits: 2
+    });
 
-function disableButtons() {
-  for (var i = 0; i < addToCartBtn.length; i++) {
-    addToCartBtn[i].style.pointerEvents = 'none';
+    target.innerHTML = `ADDED ${formatter.format(cartValue)} $`;
+    content.removeEventListener('click', addToCartLogic);
+
+    setTimeout(() => {
+      content.addEventListener('click', addToCartLogic);
+      target.innerHTML = defaultButtonText;
+    }, 2000);
+    cartIncrement();
   }
 }
+    
+content.addEventListener('click', addToCartLogic);
+  
 
-function enableButtons() {
-  for (var i = 0; i < addToCartBtn.length; i++) {
-    addToCartBtn[i].style.pointerEvents = 'all';
-  }
-}
+
+
